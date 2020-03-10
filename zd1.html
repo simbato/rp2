@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Zadatak1</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css">
+</head>
+<body>
+    <form action="obradi.php" method="get">
+        Name
+        <input name = "name" type = "text"/>
+        <br><br>
+        Password
+        <input name = "password" type = "password" />
+        <br><br>
+        Gender
+        <input name = "gender" type = "radio" value = "M" /> Male
+        <input name = "gender" type = "radio" value = "F" /> Female
+        <br><br>
+        Continent
+        <select name="continent" >
+            <option disabled selected> Please select from the list...</option>
+            <option value = "europe">Europe</option>
+            <option value = "america">America</option>
+            <option value = "asia">Asia</option>
+            <option value = "africa">Africa</option>
+        </select>
+        <br><br>
+        Meals
+        <input type="checkbox" name="meals" value="b"> Breakfast <br>
+        <input type="checkbox" name="meals" value="l"> Lunch <br>
+        <input type="checkbox" name="meals" value="d"> Dinner <br>
+        <br>
+        Remark
+        <textarea name="remark"  cols="30" rows="10">Please enter text...
+        </textarea>
+        <br><br>
+        <button type = "reset">Reset form</button>
+        <button type = "submit">Submit form</button> 
+    </form>
+</body>
+</html>
