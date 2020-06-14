@@ -1,0 +1,31 @@
+.navbar {
+  background-color: #4682B4;
+  overflow: hidden;
+}
+
+.navbar a:hover {
+  background-color: #87CEEB;
+  color: #0000CD;
+}
+.navbar a {
+  float: left;
+  color: black;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+th {
+  border: 1px solid black;
+}
+
+td {
+  text-align: center;
+}
+
+.username{
+  float: center;
+  text-align: center;
+  font-size: 20px;
+}

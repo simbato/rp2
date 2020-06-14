@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf8" />
+    <title>Minesweeper</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+</head>
+<body>
+    <h1>Minesweeper!</h1>
+    <canvas id="canvas" style="border: solid 3px;"></canvas>
+    <h2 id = "kraj"></h2>
+    <br>
+    Broj redaka:<input type="text" id="nRows">
+    <br>
+    Broj stupaca:<input type="text" id="nCols">
+    <br>
+    Broj mina:<input type="text" id="nMines">
+    <br>
+    <button id="new">Započni novu igru!</button>
+<script>
+var size = 50, nRows = 9, nCols = 9,nMines=10, id, field = [], left;
+//boje za brojke
+var colors = ["blue", "red", "green", "yellow", "magenta", "#00004d", "#800000" ,"black"];
+//var canvas = $('<canvas width="'+ size*nCols +  '" height="'+size*nRows+ '" style="border: solid 1px;" id="canvas"></canvas>');
+//$("body").append(canvas);
+
+
+$(document).ready(function()
+{
+    start();
+    $( "#new" ).on( "click", function()
+    {
+        if ($( "#nRows" ).val() !== "" && !isNaN($( "#nRows" ).val()))
+            nrows = parseInt($( "#nRows" ).val());
+        if ($( "#nCols" ).val() !== "" && !isNaN($( "#nCols" ).val()))
+            ncols = parseInt($( "#nCols" ).val());
+        if ($( "#nMines" ).val() !== "" && !isNaN($( "#nMines" ).val()))
+            nmines = parseInt($( "#nMines" ).val());
+
+        if (check(nrows,ncols,nmines)){
+            nRows = nrows;
+            nMines = nmines;
+            nCols = ncols;
+            start();
+        }
+        else{
+            $("#kraj").html("Unijeli ste krive podatke. Pokušajte ponovo.");
+        }
+    });
+});
+
+function start(){
+    get_id();
+    draw_canvas();
+    $("#kraj").html("");
+    left = nRows*nCols - nMines;
+    for (var i = 0; i < nRows * nCols; i++)
+        field[i] = 0;
+    $("#canvas").on("contextmenu", function() { return false; });
+    $("#canvas").on("mousedown", radi);
+}
+function draw_canvas(){
+    var ctx = $("#canvas").get(0).getContext("2d");
+    ctx.canvas.height = size * nRows;
+    ctx.canvas.width = size * nCols;
+    ctx.lineWidth = "3";
+    for (var i = 0; i < nRows; i++)
+        for (var j = 0; j < nCols; j++){
+            ctx.fillStyle = "gray";
+            ctx.strokeRect(j*size,i*size, size, size);
+            ctx.fillRect(j*size,i*size, size, size);
+        }
+}
+function check(nrows, ncols, nmines){
+    if (ncols < 1 || ncols > 20) return false;
+    if (nrows < 1 || nrows > 20) return false;
+    if (nmines < 0 || nmines > nrows*ncols) return false;
+    return true;
+}
+
+function radi(event) {   
+    var ctx = $("#canvas").get(0).getContext("2d");
+    var rect = $("#canvas").get(0).getBoundingClientRect();
+    var x = event.clientX - rect.left, y = event.clientY - rect.top;
+    //odredi u kojoj je kucici
+    for (var i = 0; i < nRows; i++){
+        for (var j = 0; j < nCols; j++)
+            if (y < (i+1)*size && x < (j+1)*size){
+                var row = i;
+                var col = j;
+                var flag = 1;
+                break;
+            }
+        if (flag) break;
+    }
+
+    if (field[row * nCols + col] != 0)
+        return;
+
+    if (event.button === 0){
+        //field[row * nCols + col] = 1;
+        $.ajax(
+        {
+            url: 'https://rp2.studenti.math.hr/~zbujanov/dz4/cell.php' ,
+            data:
+            {
+                id: id,
+                row: row,
+                col: col
+            },
+            dataType: "json",
+            success: function(json) {
+                if (json["boom"] == true){
+                    $("#kraj").html("Izgubili ste!");
+                    ctx.lineWidth = "3";
+                    ctx.fillStyle = "red";
+                    ctx.strokeRect(col*size,row*size, size, size);
+                    ctx.fillRect(col*size,row*size, size, size);
+                    ctx.fillStyle = "black";
+                    ctx.font = "bold 45px Arial";
+                    ctx.fillText("X", col*size + 10, row*size + 40);
+                    $("#canvas").off("mousedown",radi);
+                }
+                else {
+                    draw(json["cells"]);
+                }
+            },
+            error: function(xhr,status) {
+                console.log("error: CELL");
+        }
+        })
+    }
+    else if (event.button === 2){
+        ctx.lineWidth = "3";
+        ctx.fillStyle = "#999999";
+        ctx.strokeRect(col*size,row*size, size, size);
+        ctx.fillRect(col*size,row*size, size, size);
+        ctx.fillStyle = "black";
+        ctx.font = "bold 30px Arial";
+        ctx.fillText("?", col*size + 15, row*size + 33);
+    }
+}
+
+function draw(cells){
+    var ctx = $("#canvas").get(0).getContext("2d");
+    var rect = $("#canvas").get(0).getBoundingClientRect();
+    ctx.lineWidth = "3";
+    for (var i = 0; i < cells.length; i++){
+        var col = cells[i]["col"];
+        var row = cells[i]["row"];
+        if(field[row*nCols + col] != 0) continue;
+
+        left--;
+        field[row*nCols + col] = 1;
+        ctx.fillStyle = "#cccccc";
+        ctx.strokeRect(col*size,row*size, size, size);
+        ctx.fillRect(col*size,row*size, size, size); 
+        
+        if (cells[i]["mines"] === 0)
+            if(left === 0) {
+                $("#kraj").html("Pobijedili ste!");
+                $("#canvas").off("mousedown",radi);
+                break;
+            }
+            else continue;
+        
+        ctx.fillStyle = colors[cells[i]["mines"] - 1];
+        ctx.font = "30px Arial";
+        ctx.fillText(cells[i]["mines"], col*size + 15, row*size + 33);
+
+        if(left === 0) {
+            $("#kraj").html("Pobijedili ste!");
+            $("#canvas").off("mousedown",radi);
+            break;
+        }
+    }
+}
+
+function get_id() {
+    $.ajax(
+    {
+        url: 'https://rp2.studenti.math.hr/~zbujanov/dz4/id.php',
+        data:
+        {
+            nRows: nRows,
+            nCols: nCols,
+            nMines: nMines
+        },
+        dataType: "json",
+        success: function(json) {
+            id=json["id"];
+        },
+        error: function(xhr,status) {
+            console.log("error: ID");
+        }  
+    })
+}
+    </script>
+</body>
+</html>
