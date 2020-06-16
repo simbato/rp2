@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+ <html>
+ <head>
+ 	<meta charset="utf8">
+	 <title>Zadatak 1</title>
+	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+ </head>
+ <body>
+	Broj redaka:<input type="text" id="nRows">
+	<br>
+	Broj stupaca:<input type="text" id="nCols">
+	<br>
+	<button id="crtaj">Crtaj!</button>
+	<br>
+	<canvas id="canvas" style="border: solid 1px;" height="600px" width="500px"></canvas>
+	<br>
+	<p id="p"></p>
+	 
+<script>
+var ok = 0;
+var nrows, ncols;
+var pressed = 0;
+
+	$(document).ready(function(){
+		$("#crtaj").on("click", function(){
+			if ($( "#nRows" ).val() !== "" && !isNaN($( "#nRows" ).val()))
+            	nrows = parseInt($( "#nRows" ).val());
+			else {
+				$("#p").html("<b>Neispravan unos.</b>");
+				return;
+			}
+        	if ($( "#nCols" ).val() !== "" && !isNaN($( "#nCols" ).val()))
+            	ncols = parseInt($( "#nCols" ).val());
+			else {
+				$("#p").html("<b>Neispravan unos.</b>");
+				return;
+			}
+			if (nrows > 20 || nrows < 1 || ncols > 20 || ncols < 1){
+				$("#p").html("<b>Neispravan unos.</b>");
+				return;
+			}
+			$("#p").html("");
+			crtaj(nrows,ncols);
+			pressed = 0;
+			ok = 1;
+		});
+
+		$("#canvas").on("mousedown", radi);
+	
+	});
+
+	function crtaj(a,b) {
+		var ctx = $("#canvas").get(0).getContext("2d");
+		var rect = $("#canvas").get(0).getBoundingClientRect();
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		var x = rect.width / b;
+		var y = rect.height / a;
+		for (var i = 0; i < a; i++){
+			for (var j = 0; j < b; j++){
+				ctx.lineWidth="3";
+				ctx.fillStyle = "white";
+				ctx.strokeRect(j*x,i*y, x, y);
+            	ctx.fillRect(j*x,i*y, x, y);
+			}
+		}
+	}
+
+	function radi(){
+		
+		if (!ok) return;
+
+		//provjeri u kojem kvadratu je bio klik
+		var ctx = $("#canvas").get(0).getContext("2d");
+    	var rect = $("#canvas").get(0).getBoundingClientRect();
+		var x = event.clientX - rect.left, y = event.clientY - rect.top;
+		var sizex = rect.width / ncols;
+		var sizey = rect.height / nrows;
+		for (var i = 0; i < nrows; i++){
+			for (var j = 0; j < ncols; j++)
+				if (y < (i+1)*sizey && x < (j+1)*sizex){
+					var row = i;
+					var col = j;
+					var flag = 1; 
+					break;
+				}
+        	if (flag) break;
+    	}
+		
+		if (pressed % 2 == 0){
+			ctx.fillStyle = "blue";
+		}
+		else {
+			ctx.fillStyle = "red";
+		}
+		ctx.lineWidth="3";
+		ctx.strokeRect(col*sizex,row*sizey, sizex, sizey);
+    	ctx.fillRect(col*sizex,row*sizey, sizex, sizey);
+		pressed++;
+		$("#p").html("Obojano je " + pressed + " kvadrata.");
+	}
+</script>
+
+ </body>
+ </html> 

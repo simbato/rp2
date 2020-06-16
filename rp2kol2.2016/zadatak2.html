@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+</head>
+<body>
+    Odaberite polazni grad: <br>
+    <button class = "polaz" value="Zagreb" >Zagreb</button>
+    <button class = "polaz" value="Split">Split</button>
+    <button class = "polaz" value="Rijeka">Rijeka</button>
+    <button class = "polaz" value="Osijek">Osijek</button><br>
+
+    <p id = "cilj"></p><br>
+    <p id = "vrijeme"></p><br>
+
+<script>
+    var pocetak, kraj, vrijeme, cijena;
+    $(document).ready(function (){
+        $( "body" ).on( "click", "button.polaz", function(){
+            pocetak = this.value;
+            $.ajax({
+                url: "zadatak2.php",
+                data:
+                {
+                    polaz: pocetak
+                },
+                type: "GET",
+                
+                success: function( data ) {  
+                    $("#cilj").html("Odaberite ciljni grad");
+                    $("#cilj").after(data);
+                    
+                },
+                error: function( xhr, status ) { console.log("error: button") },
+            } );
+            
+        } );
+        $( "body" ).on( "click", "button.cilj", function(){
+            kraj = this.value;
+            $.ajax({
+                url: "zadatak2.php",
+                data:
+                {
+                    cilj: kraj,
+                    polaz: pocetak
+                },
+                type: "GET",
+                
+                success: function( data ) {  
+                    $("#vrijeme").html("Odaberite vrijeme");
+                    $("#vrijeme").after(data);
+                    console.log();
+                },
+                error: function( xhr, status ) { console.log("error: button") },
+            } );
+        } );
+        $( "body" ).on( "click", "button.time", function(){
+            vrijeme = this.value;
+            $.ajax({
+                url: "zadatak2.php",
+                data:
+                {
+                    cilj: kraj,
+                    polaz: pocetak,
+                    time: vrijeme
+                },
+                type: "GET",
+                
+                success: function( data ) {  
+                    cijena = data;
+                    alert('Odabrali ste vlak od '+ pocetak+' do '+kraj+' koji krece u '+vrijeme+' i kosta ' + data);
+                },
+                error: function( xhr, status ) { console.log("error: button") },
+            } );
+        });
+    });
+</script>
+</body>
+</html>
