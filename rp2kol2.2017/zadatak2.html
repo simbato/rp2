@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <style>
+        td {border: solid 1px black;
+            width: 50px;
+            height: 50px;
+        }
+        table {
+            empty-cells: show;
+        }
+    </style>
+    <title>zadatak 2</title>
+</head>
+<body>
+    Odaberi igru <select name ="igra" id="igra">
+        <option value="PRVA">PRVA</option>
+        <option value="DRUGA">DRUGA</option>
+        <option value="TRECA">TRECA</option>
+    </select>
+    <button id="btn">Start</button><br>
+
+    <div id ="here"></div><br>
+    <p id="p"></p>
+
+    <script>
+        var broj = 0, id_prve, ukupno = 0, br_bodova= 0;
+        var nrows, ncols, igra;
+        $(document).ready(function(){
+
+            
+            $("#btn").on("click", function(){
+                igra = $("#igra").val();
+
+                $.ajax({
+                    url: "zadatak2.php",
+                    data:
+                    {
+                        igra: igra
+                    },
+                    type: "GET",
+                    
+                    success: function( data ) { 
+                        $("#tab").remove(); 
+                        var temp = data.split(",");
+                        ncols = temp[1];
+                        nrows = temp[0];
+                        //$("#p").html("dimenzije su " + nrows +"x" +ncols );
+
+                        var table = $('<table id="tab">').addClass('foo');
+                        for(var i=0; i<nrows; i++){
+                            var row = $('<tr>');
+                            for(var j=0; j<ncols; j++){
+                                var celija = $('<td onclick="ispisi(this.id)" id="'+i+j+'"></td>');
+                                //console.log (celija.attr("id"));
+                                row.append(celija);
+                            }
+                            table.append(row);
+                        }
+
+                        $('#here').append(table);
+                        $("#p").html('Zasad imas ' + br_bodova + ' bodova. Ukupno si otvoria '+ukupno+ ' polja.');
+                        
+                    },
+                    error: function( xhr, status ) { console.log("error: button") },
+                    
+                } );
+            });
+
+
+
+        });
+        function ispisi(id){
+            if (broj == 2) return;
+            else if (!broj)
+                id_prve = id;
+            //cell = document.getElementById(id);
+            $("#" + id).css("text-align","center");
+
+            $.ajax({
+                    url: "zadatak2.php",
+                    data:
+                    {
+                        igra: igra,
+                        col: id[1],
+                        row: id[0]
+                    },
+                    type: "GET",
+                    
+                    success: function( data ) { 
+                        broj++;
+                        ukupno++;
+                        $("#" + id).html(data);
+                        $("#" + id).css("background-color","gray");
+                        $("#p").html('Zasad imas ' + br_bodova + ' bodova. Ukupno si otvoria '+ukupno+ ' polja.');
+                        if (broj == 2){
+                            if ($("#" + id).html() === $("#" + id_prve).html()){
+                                
+                                br_bodova++;
+                                broj = 0;
+                                console.log(br_bodova);
+                                if (br_bodova === ncols*nrows/2){
+                                    broj=2;
+                                    alert("pobjeda");
+                                }
+                                $("#p").html('Zasad imas ' + br_bodova + ' bodova. Ukupno si otvoria '+ukupno+ ' polja.');
+                                return;
+                            }
+                            else {
+                                var timeout = setTimeout(f, 1000, id);
+                            }
+                        }
+                
+                    },
+                    error: function( xhr, status ) { console.log("error: button") },    
+            } );
+            
+        }
+        function f(id){
+            $("#p").html('Zasad imas ' + br_bodova + ' bodova. Ukupno si otvoria '+ukupno+ ' polja.');
+            $("#" + id).html("");
+            $("#" + id_prve).html("");
+            $("#" + id_prve).css("background-color","white");
+            $("#" + id).css("background-color","white");
+            broj = 0;
+            return;
+        }
+    </script>
+</body>
+</html>
