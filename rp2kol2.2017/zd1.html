@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+ <html>
+ <head>
+ 	<meta charset="utf8">
+	 <title>Zadatak 1</title>
+	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+ </head>
+ <body>
+    <input type="radio" id="1" name="radio" value="1">
+    <label for="1">Otvaranje novog prozora visina = <input type="text" id = "visina">,
+    širina = <input type="text" id="sirina"></label><br>
+    <input type="radio" id="2" name="radio" value="2">
+	<label for="2">Zatvaranje prozora</label><br>
+	<canvas id="canvas" style="border: solid 1px;" height="600" width="600"></canvas>
+    <br>
+    <p id="p"></p>
+    <script>
+        var br_prozora = 0;
+        var imena = new Set();
+        $(document).ready(function(){
+            $("#canvas").on("click", radi);
+        });
+
+        function radi(){
+            if (document.getElementById('1').checked)
+                crtaj();
+            else if (document.getElementById('2').checked)
+                obrisi();
+        }
+
+        function crtaj(){
+            var visina = parseInt($("#visina").val());
+            var sirina = parseInt( $("#sirina").val());
+            if (visina < 30)
+                return;
+            if (sirina < 30)
+                return;
+            
+            var ctx = $("#canvas").get(0).getContext("2d");
+    	    var rect = $("#canvas").get(0).getBoundingClientRect();
+            var x = event.clientX - rect.left, y = event.clientY - rect.top;
+            $("#p").html(x + ',' + y + ' sirina='+sirina+ ', visina='+visina);
+            if (x + sirina > 600 || y + visina > 600){
+                alert("Prevelika sirina ili visina.")
+                return;
+            }
+            br_prozora++;
+            ctx.lineWidth="2";
+			ctx.fillStyle = "gray";
+			ctx.strokeRect(x,y,sirina - 30, 30);
+        	ctx.fillRect(x,y, sirina - 30, 30);
+            ctx.font = "12pt Verdana";
+            ctx.fillStyle = "black";
+            ctx.fillText("Prozor" + br_prozora, x + 5, y + 20 );
+            ctx.fillStyle = "red";
+			ctx.strokeRect(x + sirina - 30,y,30, 30);
+        	ctx.fillRect(x + sirina - 30,y, 30, 30);
+            ctx.font = "20pt Verdana";
+            ctx.fillStyle = "black";
+            ctx.fillText("X", x + sirina - 25, y + 25 );
+            ctx.fillStyle = "white";
+			ctx.strokeRect(x,y+30,sirina, visina - 30);
+        	ctx.fillRect(x,y+30, sirina, visina - 30);
+            imena.add("Prozor"+br_prozora);
+            var ispis = "";
+            var iterator = imena.values();
+            for (var i = 0; i< imena.size; i++){
+                ispis += iterator.next().value;
+                ispis += " ";
+            }
+            $("#p").html('Trenutno je otvoreno ' + br_prozora +' prozora.<br>'+
+            'To su: ' + ispis );
+        }
+        function obrisi(){
+            var ctx = $("#canvas").get(0).getContext("2d");
+    	    var rect = $("#canvas").get(0).getBoundingClientRect();
+            var x = event.clientX - rect.left, y = event.clientY - rect.top;
+        }
+    </script>
+</body>
+ </html>
